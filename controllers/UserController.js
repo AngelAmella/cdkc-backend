@@ -90,7 +90,7 @@ const postUser = asyncHandler(async (req, res) => {
     confirmpassword,
   } = req.body;
 
-  // !UserName||!LastName||!FirstName||!MiddleName||
+  
   if (!UserName || !email || !password || !confirmpassword) {
     res.status(400).json({ error: "Please fill in all required fields" });
     return;
@@ -98,11 +98,17 @@ const postUser = asyncHandler(async (req, res) => {
 
   // Check if user with the same email already exists
   const userExist = await User.findOne({ email });
+  const userNameExist = await User.findOne({ UserName });
 
   if (userExist) {
     res.status(400).json({ error: "Email already in use" });
     return;
   }
+  if (userNameExist) {
+    res.status(400).json({ error: "Username already in use" }); // Send error response if username already exists
+    return;
+  }
+
 
   // Encrypt the password before storing it
   const cipher = CryptoJS.AES.encrypt(password, "secret key 123").toString();
@@ -128,7 +134,7 @@ const postUser = asyncHandler(async (req, res) => {
   try {
     const savedUser = await newUser.save();
 
-    // Create a JWT token for the new user
+
     const token = jwt.sign(
       { userId: savedUser._id, isAdmin: false },
       secretKey,
