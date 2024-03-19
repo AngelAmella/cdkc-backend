@@ -69,7 +69,7 @@ const postAppointment = asyncHandler (async (req, res) => {
 
     //Check if Appointment exist
     const appointmentExist = await Appointments.findOne({
-        appointmentTime, appointmentDate, service
+        appointmentTime, appointmentDate, service, status: 'Accepted'
     });
 
     if (appointmentExist) {

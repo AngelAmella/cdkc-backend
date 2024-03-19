@@ -71,7 +71,7 @@ const loginAdmin = asyncHandler (async (req, res) => {
 
     if(userExist){
         const adminId = userExist._id;
-        const isAdmin = userExist.role === 'admin';
+        const isAdmin = userExist.role === 'Admin';
         const token = jwt.sign({ adminId, isAdmin }, secretKey, { expiresIn: '1h' });
         res.status(200).json({ token, adminId, isAdmin });
     }else{
