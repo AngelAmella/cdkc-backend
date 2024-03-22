@@ -23,7 +23,7 @@ const upload = multer({ storage: storage });
 
 router.route('/').get(getInventory).post(upload.single('itemImg'), postInventory);
 
-router.route('/:id').put(updateInventory).delete(deltInventory).get(getOneInventory);
+router.route('/:id').put(upload.single('itemImg'),updateInventory).delete(deltInventory).get(getOneInventory);
 
 router.route('/:ids').delete(deltMultiInventory).get(getMultiInventory);
 

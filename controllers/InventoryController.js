@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 const Inventory = require('../models/InventoryModel');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs'); // Import the Node.js file system module
 
 // Get All Inventory
 //@route GET /api/inventory
@@ -89,20 +90,52 @@ const postInventory = asyncHandler(async (req, res) => {
 //Update an Inventory
 // //@route PUT /api/inventory/:id
 // //@access Public
-const updateInventory = asyncHandler (async (req, res) => {
-    const inventory = await Inventory.findById(req.params.id)
+const updateInventory = asyncHandler(async (req, res) => {
+  const inventory = await Inventory.findById(req.params.id);
 
-    if(!inventory){
-       res.status(400)
-         throw new Error('Inventory not found')
+  if (!inventory) {
+    res.status(404);
+    throw new Error('Inventory not found');
+  }
+
+  try {
+    const { itemName, itemDescription, stocksAvailable, itemPrice, expireDate } = req.body;
+
+    // Update fields if they exist in the request body
+    if (itemName !== undefined) {
+      inventory.itemName = itemName;
+    }
+    if (itemDescription !== undefined) {
+      inventory.itemDescription = itemDescription;
+    }
+    if (stocksAvailable !== undefined) {
+      inventory.stocksAvailable = stocksAvailable;
+    }
+    if (itemPrice !== undefined) {
+      inventory.itemPrice = itemPrice;
+    }
+    if (expireDate !== undefined) {
+      inventory.expireDate = expireDate;
     }
 
-    const updatedInventory = await Inventory.findByIdAndUpdate(req.params.id, req.body, {
-        new: true
-          })
-    
-     res.status(200).json(updatedInventory)
- })
+    // Check if there's a new image file
+    if (req.file) {
+      // Remove existing image if any
+      if (inventory.itemImg) {
+        fs.unlinkSync(inventory.itemImg); 
+      }
+      inventory.itemImg = req.file.path;
+    }
+
+    // Save updated inventory
+    await inventory.save();
+
+    res.status(200).json(inventory);
+  } catch (error) {
+    console.error('Error in updateInventory:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 // Delete an Inventory
